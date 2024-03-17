@@ -3,7 +3,7 @@ import React, { use, useEffect, useState } from 'react'
 import ConnectButton from './ConnectButton'
 import { config, readIpc } from '../config/index'
 import { writeContract, readContract } from 'wagmi/actions'
-import { abi, address_sepolia } from '@/ABI/game'
+import { abi_sepolia, abi_subnet, address_sepolia, address_subnet } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 import { buyIn, currencyAddress } from '@/page'
 import { useAtom } from 'jotai'
@@ -29,9 +29,9 @@ const ModalWindow = ({ setActivePlayer }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await readContract(config, {
-          address: address_sepolia,
-          abi: abi,
+        const data = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
           functionName: 'getActivePlayers',
           args: [],
           account: address,
@@ -87,15 +87,19 @@ const ModalWindow = ({ setActivePlayer }) => {
       })
       result
     } else if (currentAllowance >= 1000000000000000000000 && theBuyIn >= 10) {
-      console.log('writeContract setupvars', theCurrencyAddress, ' ', theBuyIn, ' ', address)
-      const result = await writeContract(config, {
-        address: address_sepolia,
-        abi: abi,
-        functionName: 'setUp',
-        args: [theCurrencyAddress, theBuyIn],
-        account: address,
-      })
-      result
+      try {
+        const result = await writeContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
+          functionName: 'setUp',
+          args: [address, theCurrencyAddress, theBuyIn],
+          account: address,
+        })
+        result
+        console.log(result, 'Game Setup complete')
+      } catch (error) {
+        console.log(error, 'Failed to setup game')
+      }
     }
     setIsLoadingSetup(false)
   }
@@ -104,9 +108,9 @@ const ModalWindow = ({ setActivePlayer }) => {
     setIsLoadingJoin(true)
     const result = await writeContract(config, {
       address: address_sepolia,
-      abi: abi,
+      abi: abi_sepolia,
       functionName: 'joinGame',
-      args: [],
+      args: [address],
       account: address,
     })
     result
@@ -117,9 +121,9 @@ const ModalWindow = ({ setActivePlayer }) => {
     setIsLoadingStart(true)
     const result = await writeContract(config, {
       address: address_sepolia,
-      abi: abi,
+      abi: abi_sepolia,
       functionName: 'startGame',
-      args: [],
+      args: [address],
       account: address,
     })
     result

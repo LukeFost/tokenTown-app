@@ -3,7 +3,7 @@
 
 import { config } from '../config/index'
 import { writeContract, readContract } from 'wagmi/actions'
-import { abi, address_sepolia } from '@/ABI/game'
+import { address_sepolia } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 
 export const handleSetupGame = async (

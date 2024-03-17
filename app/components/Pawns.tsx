@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 const models = ['/dog.glb', '/duck.glb']
 
-export function Pawn({ gameState, targetSquare }) {
+export function Pawn({ gameState, targetSquare, otherPlayersPositions }) {
   const [modelIndex, setModelIndex] = useState(0)
   const [positionState, setPositionState] = useState(1)
   const [currentPosition, setCurrentPosition] = useState({ x: -0.4, z: 0.4 })
@@ -84,5 +84,17 @@ export function Pawn({ gameState, targetSquare }) {
     pawnRef.current.position.set(x, verticalPosition + 0.028, z)
   })
 
-  return <primitive ref={pawnRef} object={gltf.scene} scale={[0.05, 0.05, 0.05]} />
+  return (
+    <>
+      <primitive ref={pawnRef} object={gltf.scene} scale={[0.05, 0.05, 0.05]} />
+      {/* {otherPlayersPositions.map((position, index) => (
+        <primitive
+          key={index}
+          object={gltf.scene.clone()}
+          scale={[0.05, 0.05, 0.05]}
+          position={[positions[position - 1][0], 0.028, positions[position - 1][1]]}
+        />
+      ))} */}
+    </>
+  )
 }

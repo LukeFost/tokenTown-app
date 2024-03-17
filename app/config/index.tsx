@@ -18,7 +18,7 @@ const metadata = {
 
 export const subnet = {
   id: 2797548018986773,
-  name: 'IPC_Subnet',
+  name: 'lukechain',
   nativeCurrency: { name: 'Filecoin', symbol: 'FIL', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://chain.lukefoster.net'] },

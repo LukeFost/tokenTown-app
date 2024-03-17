@@ -11,9 +11,9 @@ import TopFace from './components/TopFace'
 import { Pawn } from './components/Pawns'
 import ModalWindow from './components/ModalWindow'
 import { atom, useAtom } from 'jotai'
-import { config } from '@/config/index'
+import { config, readIpc } from '@/config/index'
 import { writeContract, readContract } from 'wagmi/actions'
-import { abi, address_sepolia } from '@/ABI/game'
+import { abi_sepolia, abi_subnet, address_sepolia, address_subnet } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 import { useAccount } from 'wagmi'
 import { parseEther, parseGwei } from 'viem'
@@ -46,28 +46,80 @@ export default function App() {
   const [activePlayer, setActivePlayer] = useState<number>(4)
   const [gameState, setGameState] = useState<string | undefined>('roll') // Initial gameState
   const [targetSquare, setTargetSquare] = useState<number>(0)
+  const [otherPlayersPositions, setOtherPlayersPositions] = useState<number[]>([])
   const [refreshValue, setRefreshValue] = useState<number>(0)
+  const [returnPropertyUnderPlayerState, setReturnPropertyUnderPlayerState] = useState<`0x${string}` | undefined>()
+  const [playerOwndedProperty, setPlayerOwnedProperty] = useState<`0x${string}`[]>([])
+
+  const [returnOwnedPropertyState, setReturnOwnedPropertyState] = useState<`0x${string}` | undefined>()
+  const [selectedPropertyToSell, setSelectedPropertyToSell] = useState<`0x${string}` | undefined>()
 
   const [isTurn, setIsTurn] = useState<boolean | undefined>()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await readContract(config, {
-          address: address_sepolia,
-          abi: abi,
+        const subnetData = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
+          functionName: 'getAllProperties',
+          args: [],
+          account: address,
+        })
+        console.log(subnetData, 'Read IPC DATA TEST')
+
+        const getYourProperty = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
+          functionName: 'getMyProperties',
+          args: [address],
+          account: address,
+        })
+        console.log(getYourProperty, 'Players currently owned property')
+        if (getYourProperty) {
+          setPlayerOwnedProperty(getYourProperty)
+        }
+
+        const data = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
           functionName: 'getCurrentPlayer',
           args: [],
           account: address,
         })
 
-        const myPosition = await readContract(config, {
-          address: address_sepolia,
-          abi: abi,
+        const myPosition = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
           functionName: 'getMyPosition',
           args: [],
           account: address,
         })
+
+        const otherPlayers = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
+          functionName: 'getActivePlayers',
+          args: [],
+          account: address,
+        })
+
+        const otherPlayersPositions = await Promise.all(
+          otherPlayers.map(async (playerAddress: string) => {
+            const position = await readContract(readIpc, {
+              address: address_subnet,
+              abi: abi_subnet,
+              functionName: 'getPlayerPosition',
+              args: [playerAddress],
+              account: address,
+            })
+            return Number(position)
+          }),
+        )
+        setOtherPlayersPositions(otherPlayersPositions)
+
+        console.log(otherPlayers, 'get other players')
+
         console.log(myPosition, 'my current position')
         console.log(data, 'getCurrentPlayer')
         console.log(gameState, 'GameState')
@@ -91,77 +143,64 @@ export default function App() {
     fetchData()
   }, [address, isTurn, targetSquare, refreshValue, gameState])
 
-  // const watchEvent = watchContractEvent(config, {
-  //   address: address_sepolia,
-  //   abi: abi,
-  //   eventName: 'RolledDice',
-  //   onLogs(logs) {
-  //     console.log('Dice Rolled Now!')
-  //     setRefreshValue(refreshValue + 1)
-  //   },
-  // })
-
-  // watchEvent()
-
-  // let dice = {
-  //   sides: 4,
-  //   roll: function () {
-  //     let randomNumber = Math.floor(Math.random() * this.sides) + 1
-  //     return randomNumber
-  //   },
-  // }
-
   useEffect(() => {
     console.log(targetSquare, 'target Square')
   }, [targetSquare])
 
-  // Turn -> If my turn enable a roll then if property not owned set to buy, if property owned pay rent, else noRoll
   const handlePropertyBuy = () => {
     const buyProperty = async () => {
       try {
-        const result = await writeContract(config, {
-          address: address_sepolia,
-          abi: abi,
-          functionName: '',
-          args: [],
+        const returnPropertyUnderPlayer = await readContract(readIpc, {
+          address: address_subnet,
+          abi: abi_subnet,
+          functionName: 'returnPropertyUnderPlayer',
+          args: [address],
           account: address,
         })
-        // Assuming you want to do something with the result
-        console.log(result)
-        if (result) {
-          console.log('I bought something!')
-        } else {
-          console.log('Failed to purchase')
+        if (returnPropertyUnderPlayer) {
+          setReturnPropertyUnderPlayerState(returnPropertyUnderPlayer)
+          // Open the modal using document.getElementById('buyModal').showModal() method
+          document.getElementById('buyModal').showModal()
         }
+        // Move the writeContract call inside the form submission handler
       } catch (error) {
         console.log(error)
       }
     }
     buyProperty()
   }
+
+  // const handlePropertySell = () => {
+  //   const sellProperty = async () => {
+  //     try {
+  //       const returnOwnedProperty = await readContract(readIpc, {
+  //         address: address_subnet,
+  //         abi: abi_subnet,
+  //         functionName: '',
+  //         args: [address],
+  //         account: address,
+  //       })
+  //       if (returnOwnedProperty) {
+  //         setReturnOwnedPropertyState(returnOwnedProperty)
+  //         // Open the modal using document.getElementById('sellModal').showModal() method
+  //         document.getElementById('sellModal').showModal()
+  //       }
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+  //   }
+  //   sellProperty()
+  // }
+
   const handleButtonClick = () => {
     switch (gameState) {
       case 'roll':
-        console.log('Rolling dice')
-        // Implement roll logic here
-        // let results = dice.roll()
-        // const max = 20
-        // if (results + targetSquare > max) {
-        //   let newValue = targetSquare + results - max
-        //   setTargetSquare(newValue)
-        //   break
-        // } else {
-        //   setTargetSquare((prevTargetSquare) => prevTargetSquare + results)
-        //   setGameState('roll') // Change to the next state if needed
-        //   break
-        // }
-
         if (isTurn) {
           const handleRollDice = async () => {
             try {
               const result = await writeContract(config, {
                 address: address_sepolia,
-                abi: abi,
+                abi: abi_sepolia,
                 functionName: 'beginMove',
                 args: [],
                 account: address,
@@ -288,7 +327,7 @@ export default function App() {
         <ambientLight intensity={4.5} />
         <Box activePlayer={activePlayer} />
         <TopFace position={[0, 0.02501, 0]} />
-        <Pawn gameState={gameState} targetSquare={targetSquare} />
+        <Pawn gameState={gameState} targetSquare={targetSquare} otherPlayersPositions={otherPlayersPositions} />
         <CameraControls />
         <Skybox />
       </Canvas>
@@ -307,26 +346,145 @@ export default function App() {
               </div>
             </div>
           </dialog>
+          <div className='fixed right-0 top-0 m-4'>
+            <div className='rounded-lg bg-white bg-opacity-75 p-4'>
+              <h3 className='mb-2 text-lg font-bold'>User Properties</h3>
+              <div className='flex flex-wrap gap-2'>
+                {playerOwndedProperty.map((property, index) => (
+                  <div key={index} className='badge badge-primary'>
+                    {property}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className='fixed inset-x-0 top-0 flex items-center justify-center space-x-5 pt-5'>
-            <button
-              className='btn btn-outline btn-info'
-              onClick={() => document.getElementById('my_modal_1').showModal()}
-            >
+            <button className='btn btn-info' onClick={() => document.getElementById('my_modal_1').showModal()}>
               Menu
             </button>
-            <button className='btn-sqaure btn btn-outline btn-primary btn-md' onClick={() => setActivePlayer(4)}>
+            {/* <button className='btn-sqaure btn btn-outline btn-primary btn-md' onClick={() => setActivePlayer(4)}>
               Top Down View
-            </button>
+            </button> */}
           </div>
 
           <div className='fixed inset-x-0 bottom-0 flex items-center justify-center space-x-5 pb-5'>
-            <button onClick={handlePropertyBuy} className='btn btn-outline btn-info'>
-              Buy
+            <button className='btn' onClick={handlePropertyBuy}>
+              Buy Property
             </button>
+            <dialog id='buyModal' className='modal'>
+              <div className='modal-box'>
+                <h3 className='text-lg font-bold'>Buy Property</h3>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault()
+                    const amount = e.target.elements.amount.value
+                    try {
+                      const result = await writeContract(config, {
+                        address: address_sepolia,
+                        abi: abi_sepolia,
+                        functionName: 'purchaseProperty',
+                        args: [address, amount, returnPropertyUnderPlayerState],
+                        account: address,
+                      })
+                      console.log(result)
+                      if (result) {
+                        console.log('I bought something!')
+                      } else {
+                        console.log('Failed to purchase')
+                      }
+                      document.getElementById('buyModal').close()
+                    } catch (error) {
+                      console.log(error)
+                    }
+                  }}
+                >
+                  <div className='py-4'>
+                    <label htmlFor='amount' className='mb-2 block'>
+                      Amount:
+                    </label>
+                    <input type='number' id='amount' name='amount' className='input input-bordered w-full' required />
+                  </div>
+                  <div className='modal-action'>
+                    <button type='submit' className='btn btn-primary'>
+                      Buy
+                    </button>
+                    <button type='button' className='btn' onClick={() => document.getElementById('buyModal').close()}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </dialog>
             <button className='btn-sqaure btn btn-primary btn-lg' onClick={handleButtonClick}>
               {getButtonLabel()}
             </button>
-            <button className='btn btn-outline btn-info'>Right Button</button>
+            {/* <button className='btn btn-outline btn-info' onClick={handlePropertySell}>
+              Sell Property
+            </button> */}
+            <dialog id='sellModal' className='modal'>
+              <div className='modal-box'>
+                <h3 className='text-lg font-bold'>Sell Property</h3>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault()
+                    const amount = e.target.elements.amount.value
+                    try {
+                      const result = await writeContract(config, {
+                        address: address_sepolia,
+                        abi: abi_sepolia,
+                        functionName: 'sellProperty',
+                        args: [address, amount, selectedPropertyToSell],
+                        account: address,
+                      })
+                      console.log(result)
+                      if (result) {
+                        console.log('I sold something!')
+                      } else {
+                        console.log('Failed to sell')
+                      }
+                      document.getElementById('sellModal').close()
+                    } catch (error) {
+                      console.log(error)
+                    }
+                  }}
+                >
+                  <div className='py-4'>
+                    <label htmlFor='property' className='mb-2 block'>
+                      Select Property to Sell:
+                    </label>
+                    <select
+                      id='property'
+                      name='property'
+                      className='select select-bordered w-full'
+                      value={selectedPropertyToSell}
+                      onChange={(e) => setSelectedPropertyToSell(e.target.value as `0x${string}`)}
+                      required
+                    >
+                      <option value=''>Select a property</option>
+                      {playerOwndedProperty.map((property, index) => (
+                        <option key={index} value={property}>
+                          {property}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className='py-4'>
+                    <label htmlFor='amount' className='mb-2 block'>
+                      Amount:
+                    </label>
+                    <input type='number' id='amount' name='amount' className='input input-bordered w-full' required />
+                  </div>
+                  <div className='modal-action'>
+                    <button type='submit' className='btn btn-primary'>
+                      Sell
+                    </button>
+                    <button type='button' className='btn' onClick={() => document.getElementById('sellModal').close()}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </dialog>
           </div>
         </div>
       </div>
