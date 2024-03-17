@@ -11,9 +11,9 @@ import TopFace from './components/TopFace'
 import { Pawn } from './components/Pawns'
 import ModalWindow from './components/ModalWindow'
 import { atom, useAtom } from 'jotai'
-import { config, readIpc } from '@/config/index'
+import { config } from '@/config/index'
 import { writeContract, readContract } from 'wagmi/actions'
-import { abi_sepolia, abi_subnet, address_sepolia, address_subnet } from '@/ABI/game'
+import { abi_sepolia, address_sepolia } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 import { useAccount } from 'wagmi'
 import { parseEther, parseGwei } from 'viem'
@@ -59,18 +59,18 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const subnetData = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const subnetData = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getAllProperties',
           args: [],
           account: address,
         })
-        console.log(subnetData, 'Read IPC DATA TEST')
+        console.log(sepoliaData, 'Read IPC DATA TEST')
 
-        const getYourProperty = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const getYourProperty = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getMyProperties',
           args: [address],
           account: address,
@@ -80,25 +80,25 @@ export default function App() {
           setPlayerOwnedProperty(getYourProperty)
         }
 
-        const data = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const data = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getCurrentPlayer',
           args: [],
           account: address,
         })
 
-        const myPosition = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const myPosition = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getMyPosition',
           args: [],
           account: address,
         })
 
-        const otherPlayers = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const otherPlayers = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getActivePlayers',
           args: [],
           account: address,
@@ -106,9 +106,9 @@ export default function App() {
 
         const otherPlayersPositions = await Promise.all(
           otherPlayers.map(async (playerAddress: string) => {
-            const position = await readContract(readIpc, {
-              address: address_subnet,
-              abi: abi_subnet,
+            const position = await readContract(config, {
+              address: address_sepolia,
+              abi: abi_sepolia,
               functionName: 'getPlayerPosition',
               args: [playerAddress],
               account: address,
@@ -150,9 +150,9 @@ export default function App() {
   const handlePropertyBuy = () => {
     const buyProperty = async () => {
       try {
-        const returnPropertyUnderPlayer = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+        const returnPropertyUnderPlayer = await readContract(config, {
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'returnPropertyUnderPlayer',
           args: [address],
           account: address,
@@ -201,7 +201,7 @@ export default function App() {
               const result = await writeContract(config, {
                 address: address_sepolia,
                 abi: abi_sepolia,
-                functionName: 'beginMove',
+                functionName: 'rollDice',
                 args: [],
                 account: address,
               })

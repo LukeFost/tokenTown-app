@@ -3,7 +3,7 @@ import React, { use, useEffect, useState } from 'react'
 import ConnectButton from './ConnectButton'
 import { config, readIpc } from '../config/index'
 import { writeContract, readContract } from 'wagmi/actions'
-import { abi_sepolia, abi_subnet, address_sepolia, address_subnet } from '@/ABI/game'
+import { abi_sepolia, address_sepolia } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 import { buyIn, currencyAddress } from '@/page'
 import { useAtom } from 'jotai'
@@ -30,8 +30,8 @@ const ModalWindow = ({ setActivePlayer }) => {
     const fetchData = async () => {
       try {
         const data = await readContract(readIpc, {
-          address: address_subnet,
-          abi: abi_subnet,
+          address: address_sepolia,
+          abi: abi_sepolia,
           functionName: 'getActivePlayers',
           args: [],
           account: address,

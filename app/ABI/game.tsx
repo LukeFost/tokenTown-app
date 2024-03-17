@@ -1,5 +1,5 @@
-export const address_sepolia = '0xD633B474E3574e0C27e60E324320086944a7F922'
-export const address_subnet = '0x6F6F3E1233C34FaC71cC8aD606AAeAaB1897C11d'
+export const address_sepolia = '0xEFcb8F62BefD5Dfa63CfCa04ca27CB247639a443'
+export const address_subnet = '0x99d6a202A9A3c26E4B7b16ECA285f6E9499d6B33'
 export const abi_sepolia = [
   {
     inputs: [],
