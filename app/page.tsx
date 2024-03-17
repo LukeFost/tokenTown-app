@@ -16,7 +16,7 @@ import { writeContract, readContract } from 'wagmi/actions'
 import { abi, address_sepolia } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'
 import { useAccount } from 'wagmi'
-import { parseEther } from 'viem'
+import { parseEther, parseGwei } from 'viem'
 import { watchContractEvent } from '@wagmi/core'
 
 export const currencyAddress = atom<`0x${string}`>('0x33438d89AA3a00323D9269d672fB43E43CE589c0')
@@ -70,6 +70,7 @@ export default function App() {
         })
         console.log(myPosition, 'my current position')
         console.log(data, 'getCurrentPlayer')
+        console.log(gameState, 'GameState')
 
         // Check if the address is in the data
         const isAddressInData = data.includes(address)
@@ -88,7 +89,19 @@ export default function App() {
     }
 
     fetchData()
-  }, [address, isTurn, targetSquare, refreshValue])
+  }, [address, isTurn, targetSquare, refreshValue, gameState])
+
+  // const watchEvent = watchContractEvent(config, {
+  //   address: address_sepolia,
+  //   abi: abi,
+  //   eventName: 'RolledDice',
+  //   onLogs(logs) {
+  //     console.log('Dice Rolled Now!')
+  //     setRefreshValue(refreshValue + 1)
+  //   },
+  // })
+
+  // watchEvent()
 
   // let dice = {
   //   sides: 4,
@@ -103,14 +116,31 @@ export default function App() {
   }, [targetSquare])
 
   // Turn -> If my turn enable a roll then if property not owned set to buy, if property owned pay rent, else noRoll
-
+  const handlePropertyBuy = () => {
+    const buyProperty = async () => {
+      try {
+        const result = await writeContract(config, {
+          address: address_sepolia,
+          abi: abi,
+          functionName: '',
+          args: [],
+          account: address,
+        })
+        // Assuming you want to do something with the result
+        console.log(result)
+        if (result) {
+          console.log('I bought something!')
+        } else {
+          console.log('Failed to purchase')
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    buyProperty()
+  }
   const handleButtonClick = () => {
     switch (gameState) {
-      case 'buy':
-        console.log('Buying property')
-
-        setGameState('roll') // Change to the next state if needed
-        break
       case 'roll':
         console.log('Rolling dice')
         // Implement roll logic here
@@ -128,16 +158,30 @@ export default function App() {
 
         if (isTurn) {
           const handleRollDice = async () => {
-            const result = await writeContract(config, {
-              address: address_sepolia,
-              abi: abi,
-              functionName: 'beginMove',
-              args: [],
-              account: address,
-            })
-            result
-            setGameState('noRoll')
+            try {
+              const result = await writeContract(config, {
+                address: address_sepolia,
+                abi: abi,
+                functionName: 'beginMove',
+                args: [],
+                account: address,
+              })
+              setGameState('noRoll')
+              // Assuming you want to do something with the result
+              console.log(result)
+              if (result) {
+                setGameState('wait')
+              } else {
+                setGameState('default')
+              }
+              // Update the game state after the contract call
+            } catch (error) {
+              // This will catch any errors that occur during the writeContract call
+              console.error('Error in Roll...', error)
+            }
           }
+
+          // Execute the function to handle the dice roll
           handleRollDice()
         }
         break
@@ -276,7 +320,9 @@ export default function App() {
           </div>
 
           <div className='fixed inset-x-0 bottom-0 flex items-center justify-center space-x-5 pb-5'>
-            <button className='btn btn-outline btn-info'>Left Button</button>
+            <button onClick={handlePropertyBuy} className='btn btn-outline btn-info'>
+              Buy
+            </button>
             <button className='btn-sqaure btn btn-primary btn-lg' onClick={handleButtonClick}>
               {getButtonLabel()}
             </button>

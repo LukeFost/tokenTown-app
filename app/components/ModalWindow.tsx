@@ -1,7 +1,7 @@
 'use client'
 import React, { use, useEffect, useState } from 'react'
 import ConnectButton from './ConnectButton'
-import { config } from '../config/index'
+import { config, readIpc } from '../config/index'
 import { writeContract, readContract } from 'wagmi/actions'
 import { abi, address_sepolia } from '@/ABI/game'
 import { approvals_abi } from '@/ABI/approvals'

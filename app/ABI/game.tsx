@@ -1,4 +1,4 @@
-export const address_sepolia = '0xAB45F8FB2ea54524250e6523856bbd94BF01b014'
+export const address_sepolia = '0x78bc5b0e07bb951ddf4221a5148f0a3364376c4a860bab647524a43499a99e03'
 export const abi = [
   {
     inputs: [
@@ -32,45 +32,6 @@ export const abi = [
       },
     ],
     name: 'CrossedGo',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'player',
-        type: 'address',
-      },
-    ],
-    name: 'FoundAsSybil',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'ender',
-        type: 'address',
-      },
-    ],
-    name: 'GameEnded',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'player',
-        type: 'address',
-      },
-    ],
-    name: 'GamePlayed',
     type: 'event',
   },
   {
@@ -229,43 +190,12 @@ export const abi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: '_rollDice',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: 'snake',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'total',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'string[]',
         name: 'list',
         type: 'string[]',
       },
     ],
     name: 'addNames',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'beginMove',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -357,6 +287,30 @@ export const abi = [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'getBalance',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
         internalType: 'contract Property',
         name: 'prop',
         type: 'address',
@@ -380,19 +334,6 @@ export const abi = [
       {
         internalType: 'uint256',
         name: 'balance',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getBuyIn',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
         type: 'uint256',
       },
     ],
@@ -439,7 +380,13 @@ export const abi = [
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
     name: 'getMyProperties',
     outputs: [
       {
@@ -525,6 +472,38 @@ export const abi = [
   },
   {
     inputs: [],
+    name: 'interchainSecurityModule',
+    outputs: [
+      {
+        internalType: 'contract IInterchainSecurityModule',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'ism',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'activeUser',
+        type: 'address',
+      },
+    ],
     name: 'joinGame',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -541,6 +520,38 @@ export const abi = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'messageCount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract Custom',
+        name: 'oldAddress',
+        type: 'address',
+      },
+    ],
+    name: 'mintWrapper',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -578,6 +589,11 @@ export const abi = [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: 'activeUser',
+        type: 'address',
+      },
+      {
         internalType: 'uint256',
         name: 'amountToSpend',
         type: 'uint256',
@@ -596,32 +612,6 @@ export const abi = [
         type: 'uint256',
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'randomResult',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-    ],
-    name: 'reclaimTokens',
-    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -646,6 +636,11 @@ export const abi = [
   },
   {
     inputs: [
+      {
+        internalType: 'address',
+        name: 'activeUser',
+        type: 'address',
+      },
       {
         internalType: 'uint256',
         name: 'amountToSell',
@@ -672,20 +667,12 @@ export const abi = [
     inputs: [
       {
         internalType: 'address',
-        name: 'user',
+        name: 'activeUser',
         type: 'address',
       },
-    ],
-    name: 'sendUserToJail',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
       {
         internalType: 'address',
-        name: 'selectedToken',
+        name: 'selToken',
         type: 'address',
       },
       {
@@ -700,7 +687,13 @@ export const abi = [
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'activeUser',
+        type: 'address',
+      },
+    ],
     name: 'startGame',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -708,6 +701,11 @@ export const abi = [
   },
   {
     inputs: [
+      {
+        internalType: 'address',
+        name: 'activeUser',
+        type: 'address',
+      },
       {
         internalType: 'uint256',
         name: 'stepsFoward',
