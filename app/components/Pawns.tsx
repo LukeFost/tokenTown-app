@@ -13,21 +13,26 @@ export function Pawn({ gameState, targetSquare }) {
   const pawnRef = useRef()
 
   const positions = [
-    [-0.4, 0.2], //Go!
-    [-0.4, 0.1],
-    [-0.4, -0.12],
-    [-0.4, -0.27],
-    [-0.4, -0.43],
-    [-0.25, -0.43],
-    [-0.1, -0.43],
-    [-0.1, -0.43],
-    [0.05, -0.4],
-    [0.25, -0.4],
-    [0.4, -0.35],
-    [0.4, -0.1],
-    [0.4, 0.05],
-    [0.4, 0.25],
-    [0.4, 0.4],
+    [-0.4, 0.4], //
+    [-0.4, 0.18], //
+    [-0.4, 0.03], //
+    [-0.4, -0.12], //
+    [-0.4, -0.27], //
+    [-0.4, -0.43], //
+    [-0.25, -0.43], //
+    [-0.1, -0.43], //
+    [0.08, -0.43], //
+    [0.22, -0.43], //
+    [0.4, -0.43], //
+    [0.4, -0.29], //
+    [0.4, -0.14], //
+    [0.4, 0.02], //
+    [0.4, 0.18], //
+    [0.4, 0.4], //
+    [0.22, 0.33], //
+    [0.08, 0.33], //
+    [-0.08, 0.33], //
+    [-0.25, 0.33], //
   ]
 
   useEffect(() => {
@@ -61,20 +66,20 @@ export function Pawn({ gameState, targetSquare }) {
 
     // Move along x if not at target x, regardless of z position
     if (x !== targetPosition.x) {
-      x += (targetPosition.x - x) / 15 // Incrementally update x
+      x += (targetPosition.x - x) / 30 // Incrementally update x
     }
 
     // Move along z if not at target z, regardless of x position
     if (z !== targetPosition.z) {
-      z += (targetPosition.z - z) / 15 // Incrementally update z
+      z += (targetPosition.z - z) / 30 // Incrementally update z
     }
 
     setCurrentPosition({ x, z })
 
     // Calculate the vertical position based on the distance to the target position
     const distanceToTarget = Math.sqrt(Math.pow(targetPosition.x - x, 2) + Math.pow(targetPosition.z - z, 2))
-    const maxHeight = 0.12 // Adjust this value to control the maximum height of the vertical movement
-    const verticalPosition = Math.sin((1 - distanceToTarget) * Math.PI) * maxHeight
+    const maxHeight = 0.05 // Adjust this value to control the maximum height of the vertical movement
+    const verticalPosition = Math.sin((1 - distanceToTarget / 0.1) * Math.PI) * maxHeight
 
     pawnRef.current.position.set(x, verticalPosition + 0.028, z)
   })
